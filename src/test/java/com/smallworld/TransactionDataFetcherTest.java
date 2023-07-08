@@ -73,6 +73,27 @@ class TransactionDataFetcherTest {
         Assertions.assertEquals(0.0, totalTransactionAmountSentBy);
     }
 
+
+    /**
+     * Unit test to test getMaxTransactionAmount when transaction list exits.
+     */
+    @Test
+    void testGetMaxTransactionAmountWhenTransactionExist() {
+        Mockito.when(transactionService.getAllTransaction()).thenReturn(getTransactions());
+        Assertions.assertEquals(430.2, transactionDataFetcher.getMaxTransactionAmount());
+    }
+
+
+    /**
+     * Unit test to test getMaxTransactionAmount when transaction list is empty.
+     */
+    @Test
+    void testGetMaxTransactionAmountWhenTransactionNotExist() {
+        Mockito.when(transactionService.getAllTransaction()).thenReturn(getEmptyTransactions());
+        Assertions.assertEquals(0.0, transactionDataFetcher.getMaxTransactionAmount());
+    }
+
+
     /**
      * To Get Mock List;
      *

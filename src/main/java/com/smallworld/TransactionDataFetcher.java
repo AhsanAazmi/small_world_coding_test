@@ -4,6 +4,7 @@ import com.smallworld.data.Transaction;
 import com.smallworld.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,7 +37,8 @@ public class TransactionDataFetcher {
      * Returns the highest transaction amount
      */
     public double getMaxTransactionAmount() {
-        throw new UnsupportedOperationException();
+        List<Transaction> transactions = transactionService.getAllTransaction();
+        return transactions.isEmpty() ? 0.0 :  transactions.stream().max(Comparator.comparingDouble(Transaction::getAmount)).get().getAmount();
     }
 
     /**
