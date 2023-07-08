@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
@@ -161,9 +162,9 @@ class TransactionDataFetcherTest {
         Map<String, List<Transaction>> expectedResult = new HashMap<>();
 
         expectedResult.put("Alfie Solomons", new ArrayList<>(List.of(transactions.get(0))));
-        expectedResult.put("Arthur Shelby", new ArrayList<>(List.of(transactions.get(1))));
-        expectedResult.put("Aberama Gold", new ArrayList<>(List.of(transactions.get(2))));
-        expectedResult.put("Oswald Mosley", new ArrayList<>(List.of(transactions.get(3))));
+        expectedResult.put("Arthur Shelby", new ArrayList<>(List.of(transactions.get(1), transactions.get(2))));
+        expectedResult.put("Aberama Gold", new ArrayList<>(List.of(transactions.get(3))));
+        expectedResult.put("Oswald Mosley", new ArrayList<>(List.of(transactions.get(4))));
 
         for (Map.Entry<String, List<Transaction>> entry : actualResult.entrySet()) {
             ReflectionAssert.assertReflectionEquals(entry.getValue(), expectedResult.get(entry.getKey()));
@@ -180,21 +181,87 @@ class TransactionDataFetcherTest {
         Assertions.assertEquals(Collections.emptyMap(), transactionDataFetcher.getTransactionsByBeneficiaryName());
     }
 
-
     @Test
     void getUnsolvedIssueIdsWhenTransactionExist() {
         Mockito.when(transactionService.getAllTransaction()).thenReturn(getTransactions());
         Set<Integer> actualResult = transactionDataFetcher.getUnsolvedIssueIds();
-        Set<Integer> expectedResult = new HashSet<>(List.of(1));
+        Set<Integer> expectedResult = new HashSet<>(List.of(1, 3));
         Assertions.assertEquals(expectedResult, actualResult);
     }
 
+
+    /**
+     * Unit test to test getUnsolvedIssueIds when transaction list is empty.
+     */
     @Test
-    void testGetUnsolvedIssueIdsWhenTransactionNotExist() {
+    void getUnsolvedIssueIdsWhenTransactionNotExist() {
         Mockito.when(transactionService.getAllTransaction()).thenReturn(getEmptyTransactions());
-        Set<Integer> actualIssueIds = transactionDataFetcher.getUnsolvedIssueIds();
-        Set<Integer> expectedIssueIds = new HashSet<>();
-        Assertions.assertEquals(expectedIssueIds, actualIssueIds);
+        Assertions.assertEquals(Collections.emptySet(), transactionDataFetcher.getUnsolvedIssueIds());
+    }
+
+
+    /**
+     * Unit test to test getAllSolvedIssueMessages when transaction list exits.
+     */
+    @Test
+    void getAllSolvedIssueMessages_WhenTransactionExist() {
+        Mockito.when(transactionService.getAllTransaction()).thenReturn(getTransactions());
+        List<String> actualResult = transactionDataFetcher.getAllSolvedIssueMessages();
+        List<String> expectedResult = List.of("Never gonna give you up", "Never gonna let you down");
+        Assertions.assertEquals(expectedResult, actualResult);
+    }
+
+
+    /**
+     * Unit test to test getAllSolvedIssueMessages when transaction list is empty.
+     */
+    @Test
+    void getAllSolvedIssueMessages_WhenTransactionNotExist() {
+        Mockito.when(transactionService.getAllTransaction()).thenReturn(getEmptyTransactions());
+        Assertions.assertEquals(Collections.emptyList(), transactionDataFetcher.getAllSolvedIssueMessages());
+    }
+
+
+    /**
+     * Unit test to test getTop3TransactionsByAmount when transaction list exits.
+     */
+    @Test
+    void getTop3TransactionsByAmountWhenTransactionExist() {
+        List<Transaction> transactions = getTransactions();
+        Mockito.when(transactionService.getAllTransaction()).thenReturn(transactions);
+        List<Transaction> actualResult = transactionDataFetcher.getTop3TransactionsByAmount();
+        List<Transaction> expectedResult = new ArrayList<>(List.of(transactions.get(0), transactions.get(1), transactions.get(4)));
+        Assertions.assertEquals(expectedResult, actualResult);
+    }
+
+
+    /**
+     * Unit test to test getAllSolvedIssueMessages when transaction list is empty.
+     */
+    @Test
+    void getTop3TransactionsByAmountWhenTransactionNotExist() {
+        Mockito.when(transactionService.getAllTransaction()).thenReturn(getEmptyTransactions());
+        Assertions.assertEquals(Collections.emptyList(), transactionDataFetcher.getTop3TransactionsByAmount());
+    }
+
+
+    /**
+     * Unit test to test getTop3TransactionsByAmount when transaction list exits.
+     */
+    @Test
+    void getTopSenderWhenTransactionExist() {
+        Mockito.when(transactionService.getAllTransaction()).thenReturn(getTransactions());
+        Assertions.assertEquals(Optional.of("Tom Shelby"), transactionDataFetcher.getTopSender());
+    }
+
+
+    /**
+     * Unit test to test getAllSolvedIssueMessages when transaction list is empty.
+     */
+    @Test
+    void testGetTopSender_WhenTransactionDoesNotExist() {
+        Mockito.when(transactionService.getAllTransaction()).thenReturn(getEmptyTransactions());
+        Assertions.assertEquals(Optional.empty(), transactionDataFetcher.getTopSender());
     }
 
     /**
@@ -227,6 +294,18 @@ class TransactionDataFetcherTest {
                         .issueId(2)
                         .issueSolved(true)
                         .issueMessage("Never gonna give you up").build()
+        );
+        transactions.add(
+                Transaction.builder()
+                        .mtn(1284564)
+                        .amount(150.2)
+                        .senderFullName("Tom Shelby")
+                        .senderAge(22)
+                        .beneficiaryFullName("Arthur Shelby")
+                        .beneficiaryAge(60)
+                        .issueId(3)
+                        .issueSolved(false)
+                        .issueMessage("Looks like money laundering").build()
         );
         transactions.add(
                 Transaction.builder()
