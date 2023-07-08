@@ -9,10 +9,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.unitils.reflectionassert.ReflectionAssert;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
 class TransactionDataFetcherTest {
@@ -28,7 +33,7 @@ class TransactionDataFetcherTest {
     @Test
     void getTotalTransactionAmountWhenTransactionExist() {
         Mockito.when(transactionService.getAllTransaction()).thenReturn(getTransactions());
-        Assertions.assertEquals(580.4, transactionDataFetcher.getTotalTransactionAmount());
+        Assertions.assertEquals(745.86, transactionDataFetcher.getTotalTransactionAmount());
     }
 
 
@@ -48,7 +53,7 @@ class TransactionDataFetcherTest {
     @Test
     void getTotalTransactionAmountSentByWhenTransactionExist() {
         Mockito.when(transactionService.getAllTransaction()).thenReturn(getTransactions());
-        Assertions.assertEquals(580.4, transactionDataFetcher.getTotalTransactionAmountSentBy("Tom Shelby"));
+        Assertions.assertEquals(678.06, transactionDataFetcher.getTotalTransactionAmountSentBy("Tom Shelby"));
     }
 
 
@@ -100,7 +105,7 @@ class TransactionDataFetcherTest {
     @Test
     void countUniqueClientsWhenTransactionExist() {
         Mockito.when(transactionService.getAllTransaction()).thenReturn(getTransactions());
-        Assertions.assertEquals(3, transactionDataFetcher.countUniqueClients());
+        Assertions.assertEquals(6, transactionDataFetcher.countUniqueClients());
     }
 
 
@@ -145,6 +150,54 @@ class TransactionDataFetcherTest {
 
 
     /**
+     * Unit test to test getTransactionsByBeneficiaryName when transaction list exits.
+     */
+    @Test
+    void getTransactionsByBeneficiaryNameWhenTransactionExist() {
+        List<Transaction> transactions = getTransactions();
+        Mockito.when(transactionService.getAllTransaction()).thenReturn(getTransactions());
+        Map<String, List<Transaction>> actualResult = transactionDataFetcher.getTransactionsByBeneficiaryName();
+
+        Map<String, List<Transaction>> expectedResult = new HashMap<>();
+
+        expectedResult.put("Alfie Solomons", new ArrayList<>(List.of(transactions.get(0))));
+        expectedResult.put("Arthur Shelby", new ArrayList<>(List.of(transactions.get(1))));
+        expectedResult.put("Aberama Gold", new ArrayList<>(List.of(transactions.get(2))));
+        expectedResult.put("Oswald Mosley", new ArrayList<>(List.of(transactions.get(3))));
+
+        for (Map.Entry<String, List<Transaction>> entry : actualResult.entrySet()) {
+            ReflectionAssert.assertReflectionEquals(entry.getValue(), expectedResult.get(entry.getKey()));
+        }
+    }
+
+
+    /**
+     * Unit test to test getTransactionsByBeneficiaryName when transaction list is empty.
+     */
+    @Test
+    void getTransactionsByBeneficiaryNameWhenTransactionNotExist() {
+        Mockito.when(transactionService.getAllTransaction()).thenReturn(getEmptyTransactions());
+        Assertions.assertEquals(Collections.emptyMap(), transactionDataFetcher.getTransactionsByBeneficiaryName());
+    }
+
+
+    @Test
+    void getUnsolvedIssueIdsWhenTransactionExist() {
+        Mockito.when(transactionService.getAllTransaction()).thenReturn(getTransactions());
+        Set<Integer> actualResult = transactionDataFetcher.getUnsolvedIssueIds();
+        Set<Integer> expectedResult = new HashSet<>(List.of(1));
+        Assertions.assertEquals(expectedResult, actualResult);
+    }
+
+    @Test
+    void testGetUnsolvedIssueIdsWhenTransactionNotExist() {
+        Mockito.when(transactionService.getAllTransaction()).thenReturn(getEmptyTransactions());
+        Set<Integer> actualIssueIds = transactionDataFetcher.getUnsolvedIssueIds();
+        Set<Integer> expectedIssueIds = new HashSet<>();
+        Assertions.assertEquals(expectedIssueIds, actualIssueIds);
+    }
+
+    /**
      * To Get Mock List;
      *
      * @return transactions
@@ -174,6 +227,30 @@ class TransactionDataFetcherTest {
                         .issueId(2)
                         .issueSolved(true)
                         .issueMessage("Never gonna give you up").build()
+        );
+        transactions.add(
+                Transaction.builder()
+                        .mtn(96132456)
+                        .amount(67.8)
+                        .senderFullName("Aunt Polly")
+                        .senderAge(34)
+                        .beneficiaryFullName("Aberama Gold")
+                        .beneficiaryAge(58)
+                        .issueId(null)
+                        .issueSolved(true)
+                        .issueMessage(null).build()
+        );
+        transactions.add(
+                Transaction.builder()
+                        .mtn(1651665)
+                        .amount(97.66)
+                        .senderFullName("Tom Shelby")
+                        .senderAge(22)
+                        .beneficiaryFullName("Oswald Mosley")
+                        .beneficiaryAge(37)
+                        .issueId(65)
+                        .issueSolved(true)
+                        .issueMessage("Never gonna let you down").build()
         );
         return transactions;
     }

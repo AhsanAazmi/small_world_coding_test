@@ -4,11 +4,13 @@ import com.smallworld.data.Transaction;
 import com.smallworld.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @RequiredArgsConstructor
@@ -70,15 +72,21 @@ public class TransactionDataFetcher {
     /**
      * Returns all transactions indexed by beneficiary name
      */
-    public Map<String, Transaction> getTransactionsByBeneficiaryName() {
-        throw new UnsupportedOperationException();
+    public Map<String, List<Transaction>> getTransactionsByBeneficiaryName() {
+        List<Transaction> transactions = transactionService.getAllTransaction();
+        return transactions.isEmpty() ? Collections.emptyMap() :
+                transactions.stream().collect(Collectors.groupingBy(Transaction::getBeneficiaryFullName));
     }
 
     /**
      * Returns the identifiers of all open compliance issues
      */
     public Set<Integer> getUnsolvedIssueIds() {
-        throw new UnsupportedOperationException();
+        List<Transaction> transactions = transactionService.getAllTransaction();
+        return transactions.isEmpty() ? Collections.emptySet() :
+                transactions.stream()
+                        .filter(transaction -> transaction.getIssueSolved().equals(Boolean.FALSE))
+                        .map(Transaction::getIssueId).collect(Collectors.toSet());
     }
 
     /**
