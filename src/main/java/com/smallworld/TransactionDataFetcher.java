@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 public class TransactionDataFetcher {
@@ -29,8 +30,9 @@ public class TransactionDataFetcher {
      */
     public double getTotalTransactionAmountSentBy(String senderFullName) {
         List<Transaction> transactions = transactionService.getAllTransaction();
-        return transactions.isEmpty() ? 0.0 : transactions.stream().filter(transaction ->
-                transaction.getSenderFullName().equals(senderFullName)).mapToDouble(Transaction::getAmount).sum();
+        return transactions.isEmpty() ? 0.0 : transactions.stream()
+                .filter(transaction -> transaction.getSenderFullName().equals(senderFullName))
+                .mapToDouble(Transaction::getAmount).sum();
     }
 
     /**
@@ -38,14 +40,19 @@ public class TransactionDataFetcher {
      */
     public double getMaxTransactionAmount() {
         List<Transaction> transactions = transactionService.getAllTransaction();
-        return transactions.isEmpty() ? 0.0 :  transactions.stream().max(Comparator.comparingDouble(Transaction::getAmount)).get().getAmount();
+        return transactions.isEmpty() ? 0.0 : transactions.stream()
+                .max(Comparator.comparingDouble(Transaction::getAmount))
+                .get().getAmount();
     }
 
     /**
      * Counts the number of unique clients that sent or received a transaction
      */
     public long countUniqueClients() {
-        throw new UnsupportedOperationException();
+        List<Transaction> transactions = transactionService.getAllTransaction();
+        return transactions.isEmpty() ? 0 : transactions.stream()
+                .flatMap(t -> Stream.of(t.getSenderFullName(), t.getBeneficiaryFullName()))
+                .distinct().count();
     }
 
     /**

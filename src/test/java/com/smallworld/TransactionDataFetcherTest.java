@@ -78,7 +78,7 @@ class TransactionDataFetcherTest {
      * Unit test to test getMaxTransactionAmount when transaction list exits.
      */
     @Test
-    void testGetMaxTransactionAmountWhenTransactionExist() {
+    void getMaxTransactionAmountWhenTransactionExist() {
         Mockito.when(transactionService.getAllTransaction()).thenReturn(getTransactions());
         Assertions.assertEquals(430.2, transactionDataFetcher.getMaxTransactionAmount());
     }
@@ -88,9 +88,29 @@ class TransactionDataFetcherTest {
      * Unit test to test getMaxTransactionAmount when transaction list is empty.
      */
     @Test
-    void testGetMaxTransactionAmountWhenTransactionNotExist() {
+    void getMaxTransactionAmountWhenTransactionNotExist() {
         Mockito.when(transactionService.getAllTransaction()).thenReturn(getEmptyTransactions());
         Assertions.assertEquals(0.0, transactionDataFetcher.getMaxTransactionAmount());
+    }
+
+
+    /**
+     * Unit test to test countUniqueClients when transaction list exits.
+     */
+    @Test
+    void countUniqueClientsWhenTransactionExist() {
+        Mockito.when(transactionService.getAllTransaction()).thenReturn(getTransactions());
+        Assertions.assertEquals(3, transactionDataFetcher.countUniqueClients());
+    }
+
+
+    /**
+     * Unit test to test countUniqueClients when transaction list is empty.
+     */
+    @Test
+    void countUniqueClientsWhenTransactionNotExist() {
+        Mockito.when(transactionService.getAllTransaction()).thenReturn(getEmptyTransactions());
+        Assertions.assertEquals(0, transactionDataFetcher.countUniqueClients());
     }
 
 
