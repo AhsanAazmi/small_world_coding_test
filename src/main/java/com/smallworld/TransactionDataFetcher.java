@@ -1,18 +1,26 @@
 package com.smallworld;
 
 import com.smallworld.data.Transaction;
+import com.smallworld.service.TransactionService;
+import lombok.RequiredArgsConstructor;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+@RequiredArgsConstructor
 public class TransactionDataFetcher {
+
+    private final TransactionService transactionService;
 
     /**
      * Returns the sum of the amounts of all transactions
      */
+
     public double getTotalTransactionAmount() {
-        throw new UnsupportedOperationException();
+        List<Transaction> transactions = transactionService.getAllTransaction();
+        return transactions.isEmpty() ? 0.0 : transactions.stream().mapToDouble(Transaction::getAmount).sum();
     }
 
     /**
