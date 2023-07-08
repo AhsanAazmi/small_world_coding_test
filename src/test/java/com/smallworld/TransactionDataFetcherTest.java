@@ -66,7 +66,7 @@ class TransactionDataFetcherTest {
     /**
      * To Get Mock Empty List;
      *
-     * @return
+     * @return transactions
      */
     private List<Transaction> getEmptyTransactions() {
         return Collections.emptyList();
