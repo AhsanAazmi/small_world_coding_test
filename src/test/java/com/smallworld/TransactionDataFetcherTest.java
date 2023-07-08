@@ -28,7 +28,7 @@ class TransactionDataFetcherTest {
     @Test
     void getTotalTransactionAmountWhenTransactionExist() {
         Mockito.when(transactionService.getAllTransaction()).thenReturn(getTransactions());
-        Assertions.assertEquals(430.2, transactionDataFetcher.getTotalTransactionAmount());
+        Assertions.assertEquals(580.4, transactionDataFetcher.getTotalTransactionAmount());
     }
 
 
@@ -36,9 +36,41 @@ class TransactionDataFetcherTest {
      * Unit Test to test getAllTransactions while transaction list in empty.
      */
     @Test
-    void getTotalTransactionAmountWhenTransactionDoNotExist() {
+    void getTotalTransactionAmountWhenTransactionNotExist() {
         Mockito.when(transactionService.getAllTransaction()).thenReturn(getEmptyTransactions());
         Assertions.assertEquals(0.0, transactionDataFetcher.getTotalTransactionAmount());
+    }
+
+
+    /**
+     * Unit test to test getTotalTransactionAmountSentBy where transaction against the user exist.
+     */
+    @Test
+    void getTotalTransactionAmountSentByWhenTransactionExist() {
+        Mockito.when(transactionService.getAllTransaction()).thenReturn(getTransactions());
+        Assertions.assertEquals(580.4, transactionDataFetcher.getTotalTransactionAmountSentBy("Tom Shelby"));
+    }
+
+
+    /**
+     * Unit test to test getTotalTransactionAmountSentBy where transaction doesn't exist against such sender.
+     */
+    @Test
+    void getTotalTransactionAmountSentByWhenNoTransactionExistAgainstSender() {
+        Mockito.when(transactionService.getAllTransaction()).thenReturn(getTransactions());
+        double totalTransactionAmountSentBy = transactionDataFetcher.getTotalTransactionAmountSentBy("Alfie Solomons");
+        Assertions.assertEquals(0.0, totalTransactionAmountSentBy);
+    }
+
+
+    /**
+     * Unit test to test getTotalTransactionAmountSentBy where transaction is empty.
+     */
+    @Test
+    void getTotalTransactionAmountSentByWhenTransactionNotExist() {
+        Mockito.when(transactionService.getAllTransaction()).thenReturn(getEmptyTransactions());
+        double totalTransactionAmountSentBy = transactionDataFetcher.getTotalTransactionAmountSentBy("Tom Shelby");
+        Assertions.assertEquals(0.0, totalTransactionAmountSentBy);
     }
 
     /**
@@ -59,6 +91,18 @@ class TransactionDataFetcherTest {
                         .issueId(1)
                         .issueSolved(false)
                         .issueMessage("Looks like money laundering").build()
+        );
+        transactions.add(
+                Transaction.builder()
+                        .mtn(1284564)
+                        .amount(150.2)
+                        .senderFullName("Tom Shelby")
+                        .senderAge(22)
+                        .beneficiaryFullName("Arthur Shelby")
+                        .beneficiaryAge(60)
+                        .issueId(2)
+                        .issueSolved(true)
+                        .issueMessage("Never gonna give you up").build()
         );
         return transactions;
     }
