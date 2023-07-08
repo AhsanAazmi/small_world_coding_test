@@ -60,7 +60,11 @@ public class TransactionDataFetcher {
      * issue that has not been solved
      */
     public boolean hasOpenComplianceIssues(String clientFullName) {
-        throw new UnsupportedOperationException();
+        List<Transaction> transactions = transactionService.getAllTransaction();
+        return transactions.isEmpty() ? Boolean.FALSE : transactions.stream()
+                .anyMatch(t -> (t.getSenderFullName().equals(clientFullName) ||
+                        t.getBeneficiaryFullName().equals(clientFullName)) &&
+                        t.getIssueSolved().equals(Boolean.FALSE));
     }
 
     /**

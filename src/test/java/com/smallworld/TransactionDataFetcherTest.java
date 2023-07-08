@@ -115,6 +115,36 @@ class TransactionDataFetcherTest {
 
 
     /**
+     * Unit test to test hasOpenComplianceIssues when user has Compliance Issues which isn't resolved.
+     */
+    @Test
+    void hasOpenComplianceIssuesWhenClientHasUnresolvedIssues() {
+        Mockito.when(transactionService.getAllTransaction()).thenReturn(getTransactions());
+        Assertions.assertTrue(transactionDataFetcher.hasOpenComplianceIssues("Tom Shelby"));
+    }
+
+
+    /**
+     * Unit test to test hasOpenComplianceIssues when user has Compliance Issues which isn't resolved.
+     */
+    @Test
+    void hasOpenComplianceIssuesWhenClientHasNoUnresolvedIssues() {
+        Mockito.when(transactionService.getAllTransaction()).thenReturn(getTransactions());
+        Assertions.assertFalse(transactionDataFetcher.hasOpenComplianceIssues("Ben Younger"));
+    }
+
+
+    /**
+     * Unit test to test hasOpenComplianceIssues when transaction list is empty.
+     */
+    @Test
+    void hasOpenComplianceIssuesWhenTransactionNotExist() {
+        Mockito.when(transactionService.getAllTransaction()).thenReturn(getEmptyTransactions());
+        Assertions.assertFalse(transactionDataFetcher.hasOpenComplianceIssues("Tom Shelby"));
+    }
+
+
+    /**
      * To Get Mock List;
      *
      * @return transactions
